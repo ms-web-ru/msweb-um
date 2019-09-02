@@ -128,6 +128,7 @@
 		var closer = $('<div>X</div>', {style: 'display: none'});
 		cont.css({
 			position: 'fixed',
+			overflow: 'auto',
 			background: '#fff',
 			'z-index': 1112,
 			'border-radius': '5px',
@@ -158,13 +159,29 @@
 		});
 		this.refreshModalPosition_(cont, bg, closer, size);
 		window.addEventListener('resize', this.refreshModalPosition_.bind(this, cont, bg, closer, size));
+
 		bg.click(this.disposeModal.bind(this, cont, bg, closer, opt_params.ondispose));
 		closer.click(this.disposeModal.bind(this, cont, bg, closer, opt_params.ondispose));
+		document.addEventListener('keydown', function (ev) {
+			if (ev.keyCode == 27)
+				this.disposeModal(cont, bg, closer, opt_params.ondispose);
+		}.bind(this));
+
 		parent.append(cont).append(bg).append(closer);
-		cont.html(html);
-		cont.fadeIn();
-		closer.fadeIn();
-		bg.fadeIn();
+		if (typeof html === 'string')
+			cont.html(html);
+		else
+			cont.append(html);
+		if (opt_params.speed == 'fast') {
+			cont.show();
+			closer.show();
+			bg.show();
+		}
+		else {
+			cont.fadeIn();
+			closer.fadeIn();
+			bg.fadeIn();
+		}
 	};
 
 	/**
@@ -250,7 +267,7 @@
 	/**
 	 *
 	 */
-	MSweb.prototype.initTooltips = function () {
+	MSweb.prototype.initTooltips = function (params) {
 		if (this.initTooltips.inited)
 			return;
 		var A = this;
@@ -262,7 +279,7 @@
 			'display': 'none',
 			'top': '0px',
 			'left': '0px',
-			'background-color': '#002aa2',
+			'background-color': 'rgba(21, 66, 197, 0.83)',
 			'padding': '5px 10px 5px 10px',
 			'color': 'white',
 			'opacity': '0.8',
@@ -483,6 +500,18 @@
 
 		var result = M(V(Y(X(d), 8 * d.length)));
 		return result.toLowerCase();
+	};
+
+	MSweb.prototype.getRandomId = function (opt_length, opt_chars) {
+		opt_length = opt_length || 8;
+		opt_chars = opt_chars || 'ABCDEFGHJKLMNPQRSTYVWXYZ23456789';
+		var str = '';
+		var ln = opt_chars.length;
+		while (opt_length) {
+			str += opt_chars[this.rand(0, ln)];
+			opt_length--;
+		}
+		return str;
 	};
 
 

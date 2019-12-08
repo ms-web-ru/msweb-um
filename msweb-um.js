@@ -274,7 +274,7 @@
 		this.tooltipContainer = $('<div>');
 		$('body').append(this.tooltipContainer);
 		this.tooltipContainer.css({
-			'z-index': 9999,
+			'z-index': 99999,
 			'position': 'absolute',
 			'display': 'none',
 			'top': '0px',
@@ -292,7 +292,17 @@
 			var elParent = el.parentNode;
 			var elPP = elParent && elParent.parentNode;
 			var elPPP = elPP && elPP.parentNode;
-
+			var umWidth = el.getAttribute('um-width');
+			if (umWidth)
+				this.tooltipContainer.css({
+					width: umWidth,
+					'max-width': ''
+				});
+			else
+				this.tooltipContainer.css({
+					width: '',
+					'max-width': '250px'
+				});
 			var tooltip = el.getAttribute && el.getAttribute('um-tooltip') ||
 				elParent && elParent.getAttribute && elParent.getAttribute('um-tooltip') ||
 				elPP && elPP.getAttribute && elPP.getAttribute('um-tooltip');
@@ -306,7 +316,7 @@
 					"left": (ev.clientX - left) > 0 ? ev.clientX - left : 0
 				})
 					.show();
-			} else {
+			} else if (el != A.tooltipContainer[0] && elPP != A.tooltipContainer[0] && elPPP != A.tooltipContainer[0]){
 				A.tooltipContainer.hide()
 					.text("")
 					.css({
@@ -314,7 +324,7 @@
 						"left": 0
 					});
 			}
-		};
+		}.bind(this);
 
 		document.body.addEventListener('mousemove', work);
 		document.body.addEventListener('click', work);

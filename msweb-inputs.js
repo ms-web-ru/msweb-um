@@ -34,6 +34,10 @@
 		new MSInputs();
 	});
  *
+ * Или к конкретному элементу:
+ *
+ * MSInputs.renderInput(DOMElement);
+ *
  * @author Mixail Sayapin
  * https://ms-web.ru
  */
@@ -43,7 +47,11 @@ function MSInputs(params) {
 	this.onchange = this.params.onchange || null;
 	this.beforeCallbackTimeout = false;
 	this.init();
-}
+};
+
+MSInputs.CLASSLIST = {
+	placeholder: 'ms-inputs-placeholder' // TODO
+};
 
 MSInputs.prototype.init = function () {
 	this.addCSS();
@@ -55,7 +63,7 @@ MSInputs.prototype.init = function () {
 MSInputs.prototype.addCSS = function () {
 	if (MSInputs.cssRendered)
 		return;
-	var css = '.msweb-input-area {border: 1px solid silver;min-height: 25px;border-radius: 3px;width: 50px;margin: auto;display: block;line-height: 25px;font-size: 14px;}.msweb-input-area.wrong {border: 2px solid red;}.msweb-inputs-minus {width: 20px;height: 20px;border: 1px solid silver;border-radius: 20px;text-align: center;cursor: pointer;font-size: 30px;line-height: 13px;background: #e1ffbe;margin: auto;}.msweb-inputs-plus {width: 20px;height: 20px;border: 1px solid silver;border-radius: 20px;text-align: center;cursor: pointer;font-size: 22px;line-height: 17px;background: #e1ffbe;margin: auto;}.msweb-inputs-plus:hover, .msweb-inputs-minus:hover {background: #cae6a9;}table.msweb-inputs-controls-table {width:100%;}.msweb-inputs-minus:active, .msweb-inputs-plus:active {border-width: 2px;} .msweb-inputs-plus, .msweb-inputs-minus  {-webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;}';
+	var css = '.msweb-input-area {border: 1px solid silver;min-height: 25px;border-radius: 3px;width: 50px;margin: auto;display: block;line-height: 25px;font-size: 14px;background:#fff;padding: 0px 5px 0px 5px;box-sizing:border-box;}.msweb-input-area.wrong {border: 2px solid red;}.msweb-inputs-minus {width: 20px;height: 20px;border: 1px solid silver;border-radius: 20px;text-align: center;cursor: pointer;font-size: 30px;line-height: 13px;background: #e1ffbe;margin: auto;}.msweb-inputs-plus {width: 20px;height: 20px;border: 1px solid silver;border-radius: 20px;text-align: center;cursor: pointer;font-size: 22px;line-height: 17px;background: #e1ffbe;margin: auto;}.msweb-inputs-plus:hover, .msweb-inputs-minus:hover {background: #cae6a9;}table.msweb-inputs-controls-table {width:100%;}.msweb-inputs-minus:active, .msweb-inputs-plus:active {border-width: 2px;} .msweb-inputs-plus, .msweb-inputs-minus  {-webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;}';
 	var style = document.createElement('style');
 	style.type = 'text/css';
 	if (style.styleSheet) {
@@ -86,6 +94,8 @@ MSInputs.prototype.renderInput = function (el) {
 	editable = editable && editable == 'false' ? false : true;
 	var value = el.getAttribute('value');
 
+	//var placeholder = el.getAttribute('placeholder');
+
 	var input = document.createElement('div');
 	input.parent_ = el;
 	input.addEventListener('paste', function (e) {
@@ -93,7 +103,6 @@ MSInputs.prototype.renderInput = function (el) {
 		e.preventDefault();
 	});
 	input.className = 'msweb-input-area';
-
 
 	if (type == 'number') {
 		input.innerHTML = value || 1;

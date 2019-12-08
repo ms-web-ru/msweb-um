@@ -64,8 +64,8 @@
 			'z-index': z,
 			'top': parentPos ? parentPos.y + 'px' : 0,
 			'left': parentPos ? parentPos.x + 'px' : 0,
-			'width': parentPos ? parentPos.width + 'px' : width + 'px',
-			'height': parentPos ? parentPos.height + 'px' : height + 'px',
+			'width': params.width || (parentPos ? parentPos.width + 'px' : width + 'px'),
+			'height': params.height || (parentPos ? parentPos.height + 'px' : height + 'px'),
 			'display': 'block'
 		});
 

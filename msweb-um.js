@@ -5,6 +5,7 @@
 (function ($) {
 	if (!window.MSweb)
 		MSweb = function () {
+			this.currTitle_ = document.title;
 			this.imgLoader = '<svg style="-webkit-animation: rotate 1s linear infinite; -moz-animation: rotate 1s linear infinite; -o-animation: rotate 1s linear infinite; animation: rotate 1s linear infinite;" width="76" height="76" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" stroke="#606060"><g fill="none" fill-rule="evenodd"><g transform="translate(1 1)" stroke-width="2"><circle stroke-opacity=".5" cx="18" cy="18" r="18"></circle><path d="M36 18c0-9.94-8.06-18-18-18"></path></g></g></svg>';
 			var css = '@-webkit-keyframes rotate { 0%{ -webkit-transform: rotate(0deg); } 100%{ -webkit-transform: rotate(360deg); }} @-moz-keyframes rotate{ 0%{ -moz-transform: rotate(0deg); } 100%{ -moz-transform: rotate(360deg); }}@-o-keyframes rotate{ 0%{ -o-transform: rotate(0deg); } 100%{ -o-transform: rotate(360deg); }}@keyframes rotate{ 0%{-webkit-transform: rotate(0deg);-moz-transform: rotate(0deg);-ms-transform: rotate(0deg);transform: rotate(0deg); } 100%{-webkit-transform: rotate(360deg);-moz-transform: rotate(360deg);-ms-transform: rotate(360deg);transform: rotate(360deg); }}';
 			var style = document.createElement('style');
@@ -130,7 +131,7 @@
 			position: 'fixed',
 			overflow: 'auto',
 			background: '#fff',
-			'z-index': 1112,
+			'z-index': opt_params.zIndex || opt_params['z-index'] || 1112,
 			'border-radius': '5px',
 			padding: opt_params.padding !== undefined ? opt_params.padding : '10px'
 		});
@@ -155,7 +156,7 @@
 			'font-size': '17px',
 			'font-family': 'sans-serif',
 			'font-weight': 'bold',
-			'z-index': 1113
+			'z-index': opt_params.zIndex || opt_params['z-index'] || 1113
 		});
 		this.refreshModalPosition_(cont, bg, closer, size);
 		window.addEventListener('resize', this.refreshModalPosition_.bind(this, cont, bg, closer, size));
@@ -274,7 +275,7 @@
 		this.tooltipContainer = $('<div>');
 		$('body').append(this.tooltipContainer);
 		this.tooltipContainer.css({
-			'z-index': 99999,
+			'z-index': 999999,
 			'position': 'absolute',
 			'display': 'none',
 			'top': '0px',
@@ -524,6 +525,77 @@
 		return str;
 	};
 
+	MSweb.prototype.htmlspecialchars = function (text) {
+		var map = {
+			'&': '&amp;',
+			'<': '&lt;',
+			'>': '&gt;',
+			'"': '&quot;',
+			"'": '&#039;'
+		};
+
+		return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+	};
+
+	MSweb.prototype.htmlspecialchars_decode = function (str) {
+		if (typeof(str) == "string") {
+			str = str.replace(/&amp;/g, '&'); /* must do &amp; first */
+			str = str.replace(/&quot;/g, '"');
+			str = str.replace(/&#039;/g, "'");
+			str = str.replace(/&lt;/g, "<");
+			str = str.replace(/&gt;/g, ">");
+		}
+		return str;
+	};
+
+	MSweb.prototype.blinkTitle = function (blinktitle) {
+		if (this.isBlinking_)
+			this.blinkTitleStop();
+		document.title = blinktitle;
+		setTimeout(function () {
+			document.title = this.currTitle_;
+		}.bind(this), 1000);
+		this.titleInterval_ = setInterval(function () {
+			document.title = blinktitle;
+			setTimeout(function () {
+				document.title = this.currTitle_;
+			}.bind(this), 1000);
+		}.bind(this), 2000);
+		this.isBlinking_ = true;
+	};
+
+	MSweb.prototype.blinkTitleStop = function () {
+		document.title = this.currTitle_;
+		clearInterval(this.titleInterval_);
+		this.isBlinking_ = false;
+	};
+	/**
+	 * Перключение класса с интервалом
+	 * @param el jQuery | DOMElement
+	 * @param className {String}
+	 * @param interval {opt msec}
+	 */
+	MSweb.prototype.setIntervalToggleClass = function (el, className, interval, clearOnHover) {
+		el = el instanceof jQuery ? el : $(el);
+		clearOnHover = clearOnHover || true;
+
+		if (!el[0].mswebIntervalToggleClass) {
+			el[0].mswebIntervalToggleClass = {};
+		}
+		if (el[0].mswebIntervalToggleClass[className])
+			return;
+		el[0].mswebIntervalToggleClass[className] = className;
+		interval = interval || 1000;
+
+		var interval = setInterval(function () {
+			el.toggleClass(className);
+		}, interval);
+		if (clearOnHover)
+			el.on('mouseover click contextmenu focus' , function () {
+				el.removeClass(className);
+				clearInterval(interval);
+			});
+	};
 
 	if (window.msweb)
 		msweb = Object.assign(new MSweb(), msweb);

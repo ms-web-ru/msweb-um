@@ -183,6 +183,7 @@
 			closer.fadeIn();
 			bg.fadeIn();
 		}
+		return cont;
 	};
 
 	/**

@@ -113,7 +113,7 @@
 
 	/**
 	 *
-	 * @param html
+	 * @param html - string | dom | $(dom)
 	 * @param opt_params:
 	 *        size - % от ширины + высоты экрана. Если не указан, то 90%
 	 *        padding

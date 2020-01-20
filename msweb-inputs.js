@@ -63,7 +63,7 @@ MSInputs.prototype.init = function () {
 MSInputs.prototype.addCSS = function () {
 	if (MSInputs.cssRendered)
 		return;
-	var css = '.msweb-input-area {border: 1px solid silver;min-height: 25px;border-radius: 3px;width: 50px;margin: auto;display: block;line-height: 25px;font-size: 14px;background:#fff;padding: 0px 5px 0px 5px;box-sizing:border-box;}.msweb-input-area.wrong {border: 2px solid red;}.msweb-inputs-minus {width: 20px;height: 20px;border: 1px solid silver;border-radius: 20px;text-align: center;cursor: pointer;font-size: 30px;line-height: 13px;background: #e1ffbe;margin: auto;}.msweb-inputs-plus {width: 20px;height: 20px;border: 1px solid silver;border-radius: 20px;text-align: center;cursor: pointer;font-size: 22px;line-height: 17px;background: #e1ffbe;margin: auto;}.msweb-inputs-plus:hover, .msweb-inputs-minus:hover {background: #cae6a9;}table.msweb-inputs-controls-table {width:100%;}.msweb-inputs-minus:active, .msweb-inputs-plus:active {border-width: 2px;} .msweb-inputs-plus, .msweb-inputs-minus  {-webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;}';
+	var css = '.msweb-input-area {border: 1px solid silver;min-height: 25px;border-radius: 3px;width: 50px;margin: auto;display: block;line-height: 25px;font-size: 14px;background:#fff;padding: 0px 5px 0px 5px;box-sizing:border-box;}.msweb-input-area.wrong {border: 2px solid red;}.msweb-inputs-minus {width: 20px;height: 20px;border: 1px solid silver;border-radius: 20px;text-align: center;cursor: pointer;font-size: 30px;line-height: 13px;background: #e1ffbe;margin: auto;}.msweb-inputs-plus {width: 20px;height: 20px;border: 1px solid silver;border-radius: 20px;text-align: center;cursor: pointer;font-size: 22px;line-height: 17px;background: #e1ffbe;margin: auto;}.msweb-inputs-plus:hover, .msweb-inputs-minus:hover {background: #cae6a9;}table.msweb-inputs-controls-table {width:100%;}.msweb-inputs-minus:active, .msweb-inputs-plus:active {border-width: 2px;} .msweb-inputs-plus, .msweb-inputs-minus  {-webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;}.msweb-input-area.disabled {color: #5d5d5d;cursor: not-allowed;}';
 	var style = document.createElement('style');
 	style.type = 'text/css';
 	if (style.styleSheet) {
@@ -341,4 +341,16 @@ MSInputs.prototype.consoleError = function (message) {
 MSInputs.prototype.setValue = function (el, value) {
 	var area = el.querySelector('.msweb-input-area');
 	area.innerText = value;
+};
+
+MSInputs.prototype.setDisabled = function (el, disabled) {
+	var area = el.querySelector('.msweb-input-area');
+	if (disabled) {
+		area.removeAttribute('contenteditable');
+		area.classList.add('disabled');
+	}
+	else {
+		area.setAttribute('contenteditable', true);
+		area.classList.remove('disabled');
+	}
 };

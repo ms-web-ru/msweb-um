@@ -89,7 +89,7 @@ MSInputs.prototype.renderInput = function (el) {
 	}
 	var validator = el.getAttribute('validator');
 
-	validator = typeof validator === 'function' && validator;
+	validator = typeof validator === 'function' && validator || this.params.validator;
 	var editable = el.getAttribute('editable');
 	editable = editable && editable == 'false' ? false : true;
 	var value = el.getAttribute('value');
@@ -104,6 +104,14 @@ MSInputs.prototype.renderInput = function (el) {
 	});
 	input.className = 'msweb-input-area';
 
+	if (this.params.classes) {
+		if (typeof this.params.classes === 'string')
+			this.params.classes = this.params.classes.split(' ');
+		this.params.classes.forEach(function (item) {
+			input.classList.add(item);
+		});
+	}
+
 	if (type == 'number') {
 		input.innerHTML = value || 1;
 		input.style.textAlign = 'center';
@@ -116,7 +124,7 @@ MSInputs.prototype.renderInput = function (el) {
 
 	if (validator) {
 		input.addEventListener('keyup', function (ev) {
-			if (!validator())
+			if (!validator(input.parentElement.getValue()))
 				this.setState(input, 'wrong');
 			else
 				this.setState(input, 'success');
@@ -125,6 +133,9 @@ MSInputs.prototype.renderInput = function (el) {
 	else if ((defaulValidatorEnabled && (type == 'number' || type == 'email')) || (!defaulValidatorEnabled && type == 'number')) {
 		input.addEventListener('keydown', this.validateNumber.bind(this));
 		input.addEventListener('keyup', this.validateMinMax.bind(this));
+		input.addEventListener('focusout', function (e) {
+			this.validateMinMax(e, true);
+		}.bind(this));
 	}
 
 	var tr = this.getControlsWrapper(el, controls);
@@ -188,6 +199,7 @@ MSInputs.prototype.renderInput = function (el) {
 
 
 	el.getValue = this.getValue.bind(el);
+	el.setValue = this.setValue.bind(el);
 	el.isrendered = true;
 };
 
@@ -229,18 +241,24 @@ MSInputs.prototype.functionExists = function (str, optEl) {
 	}
 };
 
-MSInputs.prototype.validateMinMax = function (e) {
+MSInputs.prototype.validateMinMax = function (e, immediately) {
 	var input = e.target || e;
-	var min = input.parent_.getAttribute('min');
-	var max = input.parent_.getAttribute('max');
+	var min = input.parent_.getAttribute('min') || this.params.min;
+	var max = input.parent_.getAttribute('max') || this.params.max;
 	this.beforeCallbackTimeout = true;
-	setTimeout(function () {
-		if (min && +input.innerText < +min)
+	if (this.validateMinMaxTimeout)
+		clearTimeout(this.validateMinMaxTimeout);
+	this.validateMinMaxTimeout = setTimeout(function () {
+		if (min && +input.innerText.replace(/[^0-9]/g, '') < +min) {
 			input.innerText = min;
-		if (max && +input.innerText > +max)
+			msweb.placeCaretAtEnd(input);
+		}
+		if (max && +input.innerText.replace(/[^0-9]/g, '') > +max) {
 			input.innerText = max;
+			msweb.placeCaretAtEnd(input);
+		}
 		this.beforeCallbackTimeout = false;
-	}.bind(this), 50);
+	}.bind(this), immediately ? 10 : 1000);
 };
 
 MSInputs.prototype.onMinus = function (el) {
@@ -339,8 +357,9 @@ MSInputs.prototype.consoleError = function (message) {
 };
 
 MSInputs.prototype.setValue = function (el, value) {
-	var area = el.querySelector('.msweb-input-area');
-	area.innerText = value;
+	el = el || this;
+	el = el.querySelector('.msweb-input-area');
+	el && (el.innerText = value);
 };
 
 MSInputs.prototype.setDisabled = function (el, disabled) {

@@ -160,12 +160,18 @@
 		});
 		this.refreshModalPosition_(cont, bg, closer, size);
 		window.addEventListener('resize', this.refreshModalPosition_.bind(this, cont, bg, closer, size));
-
-		bg.click(this.disposeModal.bind(this, cont, bg, closer, opt_params.ondispose));
-		closer.click(this.disposeModal.bind(this, cont, bg, closer, opt_params.ondispose));
+		cont[0].close = function () {
+			this.disposeModal(cont, bg, closer, opt_params.ondispose);
+		}.bind(this)
+		bg.click(function () {
+			cont[0].close();
+		});
+		closer.click(function () {
+			cont[0].close();
+		});
 		document.addEventListener('keydown', function (ev) {
 			if (ev.keyCode == 27)
-				this.disposeModal(cont, bg, closer, opt_params.ondispose);
+					cont[0].close();
 		}.bind(this));
 
 		parent.append(cont).append(bg).append(closer);
@@ -596,6 +602,32 @@
 				el.removeClass(className);
 				clearInterval(interval);
 			});
+	};
+
+	/**
+	 * Поиск в объекте содержащем объекты по значению ключа в них.
+	 * например для получения из объекта: {
+	 *  2: {option_name: "Цель кредита", id: "2", option_type: "select", status: "1", option_values: Array(17)}
+			9: {
+				option_name: "Занятость"
+				id: "9"
+				option_type: "select"
+				status: "1"
+				option_values: (5) [{…}, {…}, {…}, {…}, {…}]
+			}
+	 * }
+	 * дочернего объекта с option_name = "Занятость"
+	 * @param obj - объект для поиска
+	 * @param key - ключ, например 'option_name'
+	 * @param val - значение искомого ключа, например "Занятость"
+	 */
+	MSweb.prototype.findByKey = function (obj, key, val) {
+		if (!obj.length) {
+			for (var i in obj) {
+				if (obj[i][key] == val)
+					return obj[i];
+			}
+		}
 	};
 
 	MSweb.prototype.createCaretPlacer = function(atStart) {

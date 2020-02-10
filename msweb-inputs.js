@@ -373,3 +373,15 @@ MSInputs.prototype.setDisabled = function (el, disabled) {
 		area.classList.remove('disabled');
 	}
 };
+
+MSInputs.prototype.setDisabled = function (el, disabled) {
+	var area = el.querySelector('.msweb-input-area');
+	if (disabled) {
+		area.removeAttribute('contenteditable');
+		area.classList.add('disabled');
+	}
+	else {
+		area.setAttribute('contenteditable', true);
+		area.classList.remove('disabled');
+	}
+};

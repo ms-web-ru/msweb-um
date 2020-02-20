@@ -372,7 +372,7 @@
 	 * @returns {string}
 	 */
 	MSweb.prototype.abc = function (n) {
-		return (n + "").split("").reverse().join("").replace(/(\d{3})/g, "$1 ").split("").reverse().join("").replace(/^ /, "");
+		return (n + "").replace(/[\s]/g, '').split("").reverse().join("").replace(/(\d{3})/g, "$1 ").split("").reverse().join("").replace(/^ /, "");
 	};
 
 	MSweb.prototype.validateEmail = function (email) {

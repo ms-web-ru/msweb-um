@@ -36,7 +36,8 @@ MSSelect.prototype.addCSS = function () {
 		return;
 	var style = document.createElement('link');
 	style.rel = 'stylesheet';
-	style.href = MSSelect.BASEPATH + '/msweb-select.css';
+	var ver = Math.floor(new Date() / 1000);
+	style.href = MSSelect.BASEPATH + '/msweb-select.css?v=' + ver;
 	var head = document.head || document.getElementsByTagName('head')[0];
 	head.appendChild(style);
 	MSSelect.cssRendered = true;
@@ -89,18 +90,22 @@ MSSelect.prototype.create = function (data, parent) {
 	optsContainer.style.display = 'none';
 	cont.appendChild(optsContainer);
 	var listened = false;
+	var A = this;
 
-	document.addEventListener('click', function (ev) {
+	var work = function (ev, mouseup) {
 		var parent = optsContainer.parentElement;
 
 		if (parent != ev.target && parent != ev.target.parentElement && parent != ev.target.parentElement.parentElement)
 			return optsContainer.style.display = 'none';
 
 		if (
-			ev.target.classList.contains(MSSelect.CLASSLIST.down) ||
-			ev.target.classList.contains(MSSelect.CLASSLIST.title) ||
-			ev.target.classList.contains(MSSelect.CLASSLIST.selectedCont) ||
-			ev.target.classList.contains(MSSelect.CLASSLIST.select)
+			!mouseup &&
+			(
+				ev.target.classList.contains(MSSelect.CLASSLIST.down) ||
+				ev.target.classList.contains(MSSelect.CLASSLIST.title) ||
+				ev.target.classList.contains(MSSelect.CLASSLIST.selectedCont) ||
+				ev.target.classList.contains(MSSelect.CLASSLIST.select)
+			)
 		) {
 			if (optsContainer.style.display)
 				optsContainer.style.display = '';
@@ -116,10 +121,18 @@ MSSelect.prototype.create = function (data, parent) {
 				data.onchange('', selectedCont.innerText);
 			}
 			optsContainer.style.display = 'none';
+			A.setState(cont, 'success');
 		}
 		else {
 			optsContainer.style.display = 'none';
 		}
+	};
+
+	document.addEventListener('click', function (ev) {
+		work(ev);
+	});
+	document.addEventListener('mouseup', function (ev) {
+		work(ev, true);
 	});
 
 	for (var i = 0, ln = data.options.length; i < ln; i++) {
@@ -130,5 +143,12 @@ MSSelect.prototype.create = function (data, parent) {
 		opt.innerText = dOpt.innerText;
 		optsContainer.append(opt);
 	}
+	cont.setState = this.setState.bind(cont);
+
 };
 
+MSSelect.prototype.setState = function (el, type) {
+	el.classList.remove('wrong');
+	el.classList.remove('success');
+	el.classList.add(type);
+};

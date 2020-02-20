@@ -102,6 +102,10 @@ MSInputs.prototype.renderInput = function (el) {
 		// TODO сделать проверки и убрать
 		e.preventDefault();
 	});
+	input.addEventListener('keydown', function (e) {
+		if (e.keyCode === 13)
+			e.preventDefault();
+	});
 	input.className = 'msweb-input-area';
 
 	if (this.params.classes) {
@@ -118,12 +122,11 @@ MSInputs.prototype.renderInput = function (el) {
 	}
 	else if (value)
 		input.innerHTML = value;
-
 	if (editable)
 		input.setAttribute('contenteditable', true);
-
 	if (validator) {
-		input.addEventListener('keyup', function (ev) {
+		var evName = !this.params.validateOnFocusOut ? 'keyup' : 'focusout';
+		input.addEventListener(evName, function (ev) {
 			if (!validator(input.parentElement.getValue()))
 				this.setState(input, 'wrong');
 			else
@@ -131,10 +134,24 @@ MSInputs.prototype.renderInput = function (el) {
 		}.bind(this));
 	}
 	else if ((defaulValidatorEnabled && (type == 'number' || type == 'email')) || (!defaulValidatorEnabled && type == 'number')) {
-		input.addEventListener('keydown', this.validateNumber.bind(this));
-		input.addEventListener('keyup', this.validateMinMax.bind(this));
+		if (!this.params.validateOnFocusOut) {
+			input.addEventListener('keydown', this.validateNumber.bind(this));
+			input.addEventListener('keyup', this.validateMinMax.bind(this));
+			input.addEventListener('focusout', function (e) {
+				this.validateMinMax(e, true);
+			}.bind(this));
+		}
+		else {
+			input.addEventListener('focusout', function (e) {
+				this.validateNumber.bind(this);
+				this.validateMinMax(e, true);
+			}.bind(this));
+		}
+	}
+
+	if (this.params.useMSabc) {
 		input.addEventListener('focusout', function (e) {
-			this.validateMinMax(e, true);
+			this.setValue(input.parentElement, msweb.abc(this.getValue(input.parentElement)));
 		}.bind(this));
 	}
 
@@ -200,6 +217,7 @@ MSInputs.prototype.renderInput = function (el) {
 
 	el.getValue = this.getValue.bind(el);
 	el.setValue = this.setValue.bind(el);
+	el.setState = this.setState.bind(el);
 	el.isrendered = true;
 };
 

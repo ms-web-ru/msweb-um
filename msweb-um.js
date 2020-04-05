@@ -650,6 +650,14 @@
 		};
 	}
 
+	MSweb.prototype.setCursorInEnd = function (el) {
+		let [r, s] = [document.createRange(), window.getSelection()];
+		r.selectNodeContents(el);
+		r.collapse(false);
+		s.removeAllRanges();
+		s.addRange(r);
+	};
+
 
 	if (window.msweb)
 		msweb = Object.assign(new MSweb(), msweb);

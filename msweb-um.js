@@ -82,7 +82,7 @@
 			left: parentPos ? width / 2 + parentPos.x - 35 : width / 2 - 30,
 			top: parentPos ? height / 2 + parentPos.y - 40 : height / 2 - 30,
 			position: parentPos ? 'absolute' : 'fixed',
-			'z-index': 111111
+			'z-index': 1112
 		});
 		if (!this.loader) {
 			this.loader = {
@@ -171,7 +171,7 @@
 		});
 		document.addEventListener('keydown', function (ev) {
 			if (ev.keyCode == 27)
-				cont[0].close();
+					cont[0].close();
 		}.bind(this));
 
 		parent.append(cont).append(bg).append(closer);
@@ -183,7 +183,8 @@
 			cont.show();
 			closer.show();
 			bg.show();
-		} else {
+		}
+		else {
 			cont.fadeIn();
 			closer.fadeIn();
 			bg.fadeIn();
@@ -317,19 +318,13 @@
 			if (tooltip) {
 				A.tooltipContainer.html(tooltip);
 				var width = A.tooltipContainer.width();
-				var left = ev.clientX - (width / 2 + 5);
-				//debugger
-				//left = (ev.clientX - left) > 0 ? ev.clientX - (width / 2 + 5) : 0;
+				var left = width / 2 + 5;
 				A.tooltipContainer.css({
 					"top": ev.clientY + window.scrollY + 20,
-					"left": left
+					"left": (ev.clientX - left) > 0 ? ev.clientX - left : 0
 				})
 					.show();
-				width = A.tooltipContainer.width();
-				//if (!umWidth && width < 250 && window.innerWidth > 320) {
-				//	A.tooltipContainer.css({left: left - (250 - width)});
-				//}
-			} else if (el != A.tooltipContainer[0] && elPP != A.tooltipContainer[0] && elPPP != A.tooltipContainer[0]) {
+			} else if (el != A.tooltipContainer[0] && elPP != A.tooltipContainer[0] && elPPP != A.tooltipContainer[0]){
 				A.tooltipContainer.hide()
 					.text("")
 					.css({
@@ -546,13 +541,11 @@
 			"'": '&#039;'
 		};
 
-		return text.replace(/[&<>"']/g, function (m) {
-			return map[m];
-		});
+		return text.replace(/[&<>"']/g, function(m) { return map[m]; });
 	};
 
 	MSweb.prototype.htmlspecialchars_decode = function (str) {
-		if (typeof (str) == "string") {
+		if (typeof(str) == "string") {
 			str = str.replace(/&amp;/g, '&'); /* must do &amp; first */
 			str = str.replace(/&quot;/g, '"');
 			str = str.replace(/&#039;/g, "'");
@@ -605,7 +598,7 @@
 			el.toggleClass(className);
 		}, interval);
 		if (clearOnHover)
-			el.on('mouseover click contextmenu focus', function () {
+			el.on('mouseover click contextmenu focus' , function () {
 				el.removeClass(className);
 				clearInterval(interval);
 			});
@@ -637,8 +630,8 @@
 		}
 	};
 
-	MSweb.prototype.createCaretPlacer = function (atStart) {
-		return function (el) {
+	MSweb.prototype.createCaretPlacer = function(atStart) {
+		return function(el) {
 			el.focus();
 			if (typeof window.getSelection != "undefined"
 				&& typeof document.createRange != "undefined") {
@@ -665,6 +658,34 @@
 		s.addRange(r);
 	};
 
+	MSweb.prototype.wrapWords = function (el) {
+		var A = this;
+		if (el instanceof jQuery)
+			el = el[0];
+		el.innerHTML = A.wrapWord_(el.innerHTML);
+	};
+
+	MSweb.prototype.wrapWord_ = function (text) {
+		var RusA = "[абвгдеёжзийклмнопрстуфхцчшщъыьэюя]";
+		var RusV = "[аеёиоуыэю\я]";
+		var RusN = "[бвгджзклмнпрстфхцчшщ]";
+		var RusX = "[йъь]";
+		var Hyphen = "\xAD";
+
+		var re1 = new RegExp("(" + RusX + ")(" + RusA + RusA + ")", "ig");
+		var re2 = new RegExp("(" + RusV + ")(" + RusV + RusA + ")", "ig");
+		var re3 = new RegExp("(" + RusV + RusN + ")(" + RusN + RusV + ")", "ig");
+		var re4 = new RegExp("(" + RusN + RusV + ")(" + RusN + RusV + ")", "ig");
+		var re5 = new RegExp("(" + RusV + RusN + ")(" + RusN + RusN + RusV + ")", "ig");
+		var re6 = new RegExp("(" + RusV + RusN + RusN + ")(" + RusN + RusN + RusV + ")", "ig");
+		text = text.replace(re1, "$1" + Hyphen + "$2");
+		text = text.replace(re2, "$1" + Hyphen + "$2");
+		text = text.replace(re3, "$1" + Hyphen + "$2");
+		text = text.replace(re4, "$1" + Hyphen + "$2");
+		text = text.replace(re5, "$1" + Hyphen + "$2");
+		text = text.replace(re6, "$1" + Hyphen + "$2");
+		return text
+	};
 
 	if (window.msweb)
 		msweb = Object.assign(new MSweb(), msweb);

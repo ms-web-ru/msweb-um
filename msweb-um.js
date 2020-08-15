@@ -387,7 +387,7 @@
 	 * @returns {*}
 	 */
 	MSweb.prototype.rand = function (min, max) {
-		max--;
+		max += 2;
 		return Math.floor(Math.random() * (max - min)) + min;
 	};
 

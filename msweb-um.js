@@ -351,11 +351,16 @@
 	 * @param param - string | object {key: value}
 	 * @param value
 	 */
-	MSweb.prototype.urlSet = function(param, value) {
+	MSweb.prototype.urlSet = function (param, value) {
 		var url = new URL(window.location.href);
 		var params = new URLSearchParams(url.search);
-		if (typeof )
-		params.set(param, value);
+		if (typeof param === 'object') {
+			for (var i in param)
+				params.set(i, param[i]);
+		}
+		else {
+			params.set(param, value);
+		}
 		var newUrl = params.toString();
 		history.pushState(null, null, newUrl);
 	};
@@ -716,7 +721,8 @@
 			sel = window.getSelection();
 			sel.removeAllRanges();
 			sel.addRange(rng);
-		} else {
+		}
+		else {
 			var rng = document.body.createTextRange();
 			rng.moveToElementText(target);
 			rng.select();

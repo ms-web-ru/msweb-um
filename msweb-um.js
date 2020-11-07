@@ -347,6 +347,20 @@
 	};
 
 	/**
+	 * Установить параметр(ы) в урл
+	 * @param param - string | object {key: value}
+	 * @param value
+	 */
+	MSweb.prototype.urlSet = function(param, value) {
+		var url = new URL(window.location.href);
+		var params = new URLSearchParams(url.search);
+		if (typeof )
+		params.set(param, value);
+		var newUrl = params.toString();
+		history.pushState(null, null, newUrl);
+	};
+
+	/**
 	 * Склонение слов в зависимости от числа
 	 * @param n - число
 	 * @param text_forms - ['минута', 'минуты', 'минут']

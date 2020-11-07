@@ -351,17 +351,28 @@
 	 * @param param - string | object {key: value}
 	 * @param value
 	 */
-	MSweb.prototype.urlSet = function (param, value) {
-		var url = new URL(window.location.href);
-		var params = new URLSearchParams(url.search);
-		if (typeof param === 'object') {
-			for (var i in param)
-				params.set(i, param[i]);
+	MSweb.prototype.urlSet = function (key, value) {
+		key = encodeURIComponent(key);
+		value = encodeURIComponent(value);
+		var kvp = document.location.search.substr(1).split('&');
+
+		for (var i = 0; i < kvp.length; i++) {
+			if (kvp[i].startsWith(key + '=')) {
+				var pair = kvp[i].split('=');
+				pair[1] = value;
+				kvp[i] = pair.join('=');
+				break;
+			}
 		}
-		else {
-			params.set(param, value);
+
+		if (i >= kvp.length) {
+			kvp[kvp.length] = [key, value].join('=');
 		}
-		var newUrl = params.toString();
+
+		// can return this or...
+		var params = kvp.join('&');
+
+		var newUrl = window.location.href.replace(window.location.search, '') + '?' + params;
 		history.pushState(null, null, newUrl);
 	};
 

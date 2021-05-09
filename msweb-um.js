@@ -460,23 +460,31 @@
 	 * @param opt_max
 	 * @param opt_timeout - время анимации. По умолчанию 1 секунда
 	 * @param opt_speed - 'slow', 'medium', 'fast' скорость анимации по умолчанию medium
+	 * @param opt_random - вставлять в анимацию случайные цифры от и до или по порядку
 	 */
-	MSweb.prototype.animateRandom = function (target, opt_value, opt_min, opt_max, opt_timeout, opt_speed) {
+	proto.animateRandom = function (target, opt_value, opt_min, opt_max, opt_timeout, opt_speed, opt_random) {
 		var A = this;
 		opt_min = opt_min || 0;
 		opt_max = opt_max || 1000;
 		opt_max += 2;
 		opt_value = opt_value || this.rand(opt_min, opt_max);
+		opt_random = opt_random === undefined ? false : !!opt_random;
+
 		if (String(opt_value).length < String(opt_max).length)
 			opt_max = opt_value;
-		var tempVal = A.rand(opt_min, opt_max);
+
+		var tempVal = opt_random ? A.rand(opt_min, opt_max) : opt_min;
+
 		opt_speed = opt_speed == 'slow' ? 100 : (opt_speed == 'medium' || !opt_speed ? 50 : '');
+
+		var aaa = Math.floor((opt_max - opt_min) / ((opt_timeout || 1000) / 50));
 
 		if (opt_speed) {
 			var interval = setInterval(function () {
-				tempVal = A.rand(opt_min, opt_max);
+				tempVal = opt_random ? A.rand(opt_min, opt_max) : (opt_min = opt_min + (aaa));
 			}, 50);
 		}
+
 		$({numberValue: opt_min}).animate({numberValue: opt_value}, {
 			duration: opt_timeout || 1000,
 			easing: "linear",

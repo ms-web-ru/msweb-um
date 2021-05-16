@@ -462,7 +462,7 @@
 	 * @param opt_speed - 'slow', 'medium', 'fast' скорость анимации по умолчанию medium
 	 * @param opt_random - вставлять в анимацию случайные цифры от и до или по порядку
 	 */
-	proto.animateRandom = function (target, opt_value, opt_min, opt_max, opt_timeout, opt_speed, opt_random) {
+	MSweb.prototype.animateRandom = function (target, opt_value, opt_min, opt_max, opt_timeout, opt_speed, opt_random) {
 		var A = this;
 		opt_min = opt_min || 0;
 		opt_max = opt_max || 1000;

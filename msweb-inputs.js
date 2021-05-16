@@ -212,6 +212,7 @@ MSInputs.prototype.renderInput = function (el) {
 	if (onchange && (onchange = this.functionExists(onchange, el))) {
 			input.oninput = onchange.bind(el);
 			input.onchange = onchange.bind(el);
+			el.removeAttribute('onchange');
 	}
 
 

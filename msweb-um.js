@@ -505,7 +505,7 @@
 		opt_length = opt_length || 8;
 		opt_chars = opt_chars || 'ABCDEFGHJKLMNPQRSTYVWXYZ23456789';
 		var str = '';
-		var ln = opt_chars.length;
+		var ln = opt_chars.length - 1;
 		while (opt_length) {
 			str += opt_chars[this.rand(0, ln)];
 			opt_length--;

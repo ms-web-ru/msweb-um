@@ -234,40 +234,49 @@
 	 * @param opt_type - success | warning | error
 	 */
 	MSweb.prototype.notify = function (mess, opt_type, time, opt_callback) {
-		var div = $('<div>');
-		var color = 'rgb(201, 247, 191)';
-		if (opt_type == 'warning') {
+		const div = MSweb.prototype.notify.div || $('<div>');
+		MSweb.prototype.notify.div = div;
+		let color = 'rgb(201, 247, 191)';
+		if (opt_type === 'warning') {
 			color = 'rgb(247, 238, 191)';
 		}
-		if (opt_type == 'error') {
+		if (opt_type === 'error') {
 			color = 'rgb(255, 219, 217)';
 		}
-		var top = window.innerHeight / 10;
-		var right = window.innerWidth / 10;
+		const top = window.innerHeight / 10;
+		const right = window.innerWidth / 10;
 		div.css({
 			maxWidth: '90%',
-			width: '300px',
+			width: '400px',
 			color: '#000',
 			fontFamily: 'sans-serif',
 			fontSize: '16px',
 			position: 'fixed',
 			top: top,
 			right: right,
-			zIndex: 99999,
+			zIndex: 99999
+		});
+		let cont = $('<div>');
+		cont.css({
 			backgroundColor: color,
 			padding: '10px',
 			borderRadius: '5px',
-			boxShadow: '2px 2px 7px 0px black'
+			boxShadow: '2px 2px 7px 0px black',
+			margin: '5px 0'
 		});
-		div.html(mess);
+		div.append(cont);
+		cont.html(mess);
 		$('body').append(div);
 
 		setTimeout(function () {
-			div.fadeOut();
+			cont.fadeOut();
 			setTimeout(function () {
-				div.remove();
+				cont.remove();
+				if (!div.children().length) {
+					div.remove();
+				}
 			}, 700);
-			if (opt_callback && typeof opt_callback === 'function') {
+			if (typeof opt_callback === 'function') {
 				opt_callback();
 			}
 		}, time || 3000);

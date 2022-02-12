@@ -30,24 +30,27 @@
  *
  * Активировать на странице:
  *
+ *
+ 	var MSInputsObj = null;
  	document.addEventListener("DOMContentLoaded", function () {
-		new MSInputs();
+		MSInputsObj = new MSInputs();
 	});
- *
+
  * Или к конкретному элементу:
- *
- * MSInputs.renderInput(DOMElement);
- *
+ 	 MSInputsObj.renderInput(DOMElement);
+
  * @author Mixail Sayapin
  * https://ms-web.ru
  */
 function MSInputs(params) {
-	this.params = params || {};
+	this.params = params || {
+		validateOnFocusOut: false
+	};
 	this.types = ['text', 'email', 'number'];
 	this.onchange = this.params.onchange || null;
 	this.beforeCallbackTimeout = false;
 	this.init();
-};
+}
 
 MSInputs.CLASSLIST = {
 	placeholder: 'ms-inputs-placeholder' // TODO
@@ -63,13 +66,14 @@ MSInputs.prototype.init = function () {
 MSInputs.prototype.addCSS = function () {
 	if (MSInputs.cssRendered)
 		return;
-	var css = '.msweb-input-area {border: 1px solid silver;min-height: 25px;border-radius: 3px;width: 50px;margin: auto;display: block;line-height: 25px;font-size: 14px;background:#fff;padding: 0px 5px 0px 5px;box-sizing:border-box;}.msweb-input-area.wrong {border: 2px solid red;}.msweb-inputs-minus {width: 20px;height: 20px;border: 1px solid silver;border-radius: 20px;text-align: center;cursor: pointer;font-size: 30px;line-height: 13px;background: #e1ffbe;margin: auto;}.msweb-inputs-plus {width: 20px;height: 20px;border: 1px solid silver;border-radius: 20px;text-align: center;cursor: pointer;font-size: 22px;line-height: 17px;background: #e1ffbe;margin: auto;}.msweb-inputs-plus:hover, .msweb-inputs-minus:hover {background: #cae6a9;}table.msweb-inputs-controls-table {width:100%;}.msweb-inputs-minus:active, .msweb-inputs-plus:active {border-width: 2px;} .msweb-inputs-plus, .msweb-inputs-minus  {-webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;}.msweb-input-area.disabled {color: #5d5d5d;cursor: not-allowed;}';
+	var css = '.msweb-input{position: relative;background:#fff;}.msweb-input-area {border: 1px solid silver;min-height: 25px;border-radius: 3px;width: 50px;margin: auto;display: block;line-height: 25px;font-size: 14px;padding: 0px 5px 0px 5px;box-sizing:border-box;z-index:1}.msweb-input-area.wrong {border: 2px solid red;}.msweb-inputs-minus {width: 20px;height: 20px;border: 1px solid silver;border-radius: 20px;text-align: center;cursor: pointer;font-size: 30px;line-height: 13px;background: #e1ffbe;margin: auto;}.msweb-inputs-plus {width: 20px;height: 20px;border: 1px solid silver;border-radius: 20px;text-align: center;cursor: pointer;font-size: 22px;line-height: 17px;background: #e1ffbe;margin: auto;}.msweb-inputs-plus:hover, .msweb-inputs-minus:hover {background: #cae6a9;}table.msweb-inputs-controls-table {width:100%;}.msweb-inputs-minus:active, .msweb-inputs-plus:active {border-width: 2px;} .msweb-inputs-plus, .msweb-inputs-minus  {-webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;}.msweb-input-area.disabled {color: #5d5d5d;cursor: not-allowed;}.ms-inputs-placeholder{position: absolute;top: 0;line-height: 25px;font-size: 14px;padding-left: 5px; display: none;color:#8a8a8a;z-index:0}.ms-inputs-placeholder.visible {display: block;}.msweb-input-textarea {background:#fff;} .msweb-input-textarea .msweb-input-area {min-height: 75px}';
 	var style = document.createElement('style');
 	style.type = 'text/css';
 	if (style.styleSheet) {
 		// This is required for IE8 and below.
 		style.styleSheet.cssText = css;
-	} else {
+	}
+	else {
 		style.appendChild(document.createTextNode(css));
 	}
 	var head = document.head || document.getElementsByTagName('head')[0];
@@ -91,10 +95,10 @@ MSInputs.prototype.renderInput = function (el) {
 
 	validator = typeof validator === 'function' && validator || this.params.validator;
 	var editable = el.getAttribute('editable');
-	editable = editable && editable == 'false' ? false : true;
+	editable = !(editable && editable === 'false');
 	var value = el.getAttribute('value');
 
-	//var placeholder = el.getAttribute('placeholder');
+	var placeholder = el.getAttribute('data-placeholder');
 
 	var input = document.createElement('div');
 	input.parent_ = el;
@@ -103,8 +107,9 @@ MSInputs.prototype.renderInput = function (el) {
 		e.preventDefault();
 	});
 	input.addEventListener('keydown', function (e) {
-		if (e.keyCode === 13)
+		if (e.keyCode === 13 && !e.target.parent_.classList.contains('msweb-input-textarea')) {
 			e.preventDefault();
+		}
 	});
 	input.className = 'msweb-input-area';
 
@@ -116,7 +121,7 @@ MSInputs.prototype.renderInput = function (el) {
 		});
 	}
 
-	if (type == 'number') {
+	if (type === 'number') {
 		input.innerHTML = value || 1;
 		input.style.textAlign = 'center';
 	}
@@ -133,7 +138,7 @@ MSInputs.prototype.renderInput = function (el) {
 				this.setState(input, 'success');
 		}.bind(this));
 	}
-	else if ((defaulValidatorEnabled && (type == 'number' || type == 'email')) || (!defaulValidatorEnabled && type == 'number')) {
+	else if ((defaulValidatorEnabled && (type === 'number' || type === 'email')) || (!defaulValidatorEnabled && type === 'number')) {
 		if (!this.params.validateOnFocusOut) {
 			input.addEventListener('keydown', this.validateNumber.bind(this));
 			input.addEventListener('keyup', this.validateMinMax.bind(this));
@@ -157,7 +162,7 @@ MSInputs.prototype.renderInput = function (el) {
 
 	var tr = this.getControlsWrapper(el, controls);
 	var td;
-	if (type == 'number' && controls) {
+	if (type === 'number' && controls) {
 		var leftControl = document.createElement('div');
 		leftControl.className = 'msweb-inputs-minus';
 		leftControl.innerHTML = '-';
@@ -165,16 +170,16 @@ MSInputs.prototype.renderInput = function (el) {
 			this.onMinus(input);
 			var A = this;
 			if (this.beforeCallbackTimeout &&
-				(this.onchange && typeof this.onchange === 'function' || input.onchange )
+				(this.onchange && typeof this.onchange === 'function' || input.onchange)
 			) {
 				var interval = setInterval(function () {
-						if (!A.beforeCallbackTimeout) {
-							A.onchange(el);
-							if (input.onchange) {
-								input.onchange(el);
-							}
-							clearInterval(interval);
+					if (!A.beforeCallbackTimeout) {
+						A.onchange(el);
+						if (input.onchange) {
+							input.onchange(el);
 						}
+						clearInterval(interval);
+					}
 				}, 60);
 
 			}
@@ -182,16 +187,38 @@ MSInputs.prototype.renderInput = function (el) {
 		this.createControlsTd(leftControl, tr, '33.33333%', controls);
 	}
 
-	this.createControlsTd(input, tr, controls ? '33.33333%' : '100%', controls);
+	var placeholderDiv;
+	if (placeholder) {
+		placeholderDiv = document.createElement('div');
+		placeholderDiv.innerText = placeholder;
+		placeholderDiv.className = MSInputs.CLASSLIST.placeholder;
+		input.placeholder_ = placeholderDiv;
+	}
+	this.createControlsTd(input, tr, controls ? '33.33333%' : '100%', controls, placeholderDiv);
 
-	if (type == 'number' && controls) {
+	if (placeholder) {
+		input.addEventListener('keypress', function (e) {
+			this.classList.remove('visible');
+		}.bind(placeholderDiv));
+		input.addEventListener('keyup', function (e) {
+			if (!e.target.parent_.getValue()) {
+				this.classList.add('visible');
+			}
+			else {
+				this.classList.remove('visible');
+			}
+		}.bind(placeholderDiv));
+	}
+
+
+	if (type === 'number' && controls) {
 		var rightControl = document.createElement('div');
 		rightControl.className = 'msweb-inputs-plus';
 		rightControl.innerHTML = '+';
 		rightControl.addEventListener('click', function (ev) {
 			this.onPlus(input);
 			if (this.beforeCallbackTimeout &&
-				(this.onchange && typeof this.onchange === 'function' || input.onchange )
+				(this.onchange && typeof this.onchange === 'function' || input.onchange)
 			) {
 				var A = this;
 				var interval = setInterval(function () {
@@ -210,9 +237,9 @@ MSInputs.prototype.renderInput = function (el) {
 
 	var onchange = el.getAttribute('onchange');
 	if (onchange && (onchange = this.functionExists(onchange, el))) {
-			input.oninput = onchange.bind(el);
-			input.onchange = onchange.bind(el);
-			el.removeAttribute('onchange');
+		input.oninput = onchange.bind(el);
+		input.onchange = onchange.bind(el);
+		el.removeAttribute('onchange');
 	}
 
 
@@ -220,6 +247,12 @@ MSInputs.prototype.renderInput = function (el) {
 	el.setValue = this.setValue.bind(el);
 	el.setState = this.setState.bind(el);
 	el.isrendered = true;
+
+	if (placeholder) {
+		if (!el.getValue()) {
+			placeholderDiv.classList.add('visible');
+		}
+	}
 };
 
 /**
@@ -234,7 +267,7 @@ MSInputs.prototype.functionExists = function (str, optEl) {
 		var arrOnChange = str.split('.');
 		var obj;
 		for (var i = 0, ln = arrOnChange.length; i < ln; i++) {
-			if (i == 0) {
+			if (i === 0) {
 				if (!window[arrOnChange[i]]) {
 					exist = false;
 					break;
@@ -251,8 +284,7 @@ MSInputs.prototype.functionExists = function (str, optEl) {
 
 		}
 		return exist ? obj : false;
-	}
-	catch (e) {
+	} catch (e) {
 		this.consoleError('Undefined function ' + str + '. Element and stack below:');
 		optEl && console.log(optEl);
 		console.warn(e);
@@ -292,7 +324,7 @@ MSInputs.prototype.onPlus = function (el) {
 	this.validateMinMax(el);
 };
 
-MSInputs.prototype.createControlsTd = function (contentEl, parentEl, width, controls) {
+MSInputs.prototype.createControlsTd = function (contentEl, parentEl, width, controls, placeholder) {
 	if (controls) {
 		var td = document.createElement('td');
 		td.style.width = width;
@@ -302,6 +334,9 @@ MSInputs.prototype.createControlsTd = function (contentEl, parentEl, width, cont
 	else {
 		contentEl.style.width = width;
 		parentEl.appendChild(contentEl);
+	}
+	if (placeholder) {
+		parentEl.appendChild(placeholder);
 	}
 };
 
@@ -338,13 +373,13 @@ MSInputs.prototype.validateNumber = function (e) {
 	if (
 		!(e.keyCode >= 48 && e.keyCode <= 57 && !e.shiftKey) && // int
 		!(e.keyCode >= 96 && e.keyCode <= 105) && // num
-		!(e.keyCode == 8) && // backspace
-		!(e.keyCode == 39) && // arrow right
-		!(e.keyCode == 37) && // arraow left
-		!(e.keyCode == 9) && // tab
-		!(e.keyCode == 46) && // delete
-		!(e.keyCode == 65 && e.ctrlKey) && // ctrl+A
-		!(e.keyCode == 82 && e.ctrlKey) // ctrl+r
+		!(e.keyCode === 8) && // backspace
+		!(e.keyCode === 39) && // arrow right
+		!(e.keyCode === 37) && // arraow left
+		!(e.keyCode === 9) && // tab
+		!(e.keyCode === 46) && // delete
+		!(e.keyCode === 65 && e.ctrlKey) && // ctrl+A
+		!(e.keyCode === 82 && e.ctrlKey) // ctrl+r
 	) {
 		e.preventDefault();
 	}
@@ -372,13 +407,25 @@ MSInputs.prototype.consoleError = function (message) {
 		'font: 16px Georgia;',
 		'color: black;'].join('');
 	message = 'MSInputs \n' + message;
-	console.log ( '%c%s', style, message );
+	console.log('%c%s', style, message);
 };
 
 MSInputs.prototype.setValue = function (el, value) {
-	el = el || this;
+	if (arguments.length === 2) {
+		el = el || this;
+	}
+	else {
+		value = el || '';
+		el = this;
+	}
 	el = el.querySelector('.msweb-input-area');
 	el && (el.innerText = value);
+	if (!value && el.placeholder_) {
+		el.placeholder_.classList.add('visible');
+	}
+	else if (el.placeholder_) {
+		el.placeholder_.classList.remove('visible');
+	}
 };
 
 MSInputs.prototype.setDisabled = function (el, disabled) {

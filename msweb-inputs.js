@@ -102,6 +102,7 @@ MSInputs.prototype.renderInput = function (el) {
 
 	var input = document.createElement('div');
 	input.parent_ = el;
+	el.inputElement_ = input;
 	input.addEventListener('paste', function (e) {
 		// TODO сделать проверки и убрать
 		e.preventDefault();
@@ -386,10 +387,21 @@ MSInputs.prototype.validateNumber = function (e) {
 };
 
 /**
- * @param el
- * @param type wrong | success
+ * @param {string} [type] - wrong | success
  */
-MSInputs.prototype.setState = function (el, type) {
+MSInputs.prototype.setState = function (type) {
+	var el;
+	if (
+		arguments.length === 2 &&
+		arguments[0] instanceof HTMLElement &&
+		typeof arguments[1] === "string"
+	) {
+		el = arguments[0];
+		type = arguments[1];
+	}
+	else {
+		el = this.inputElement_;
+	}
 	el.classList.remove('wrong');
 	el.classList.remove('success');
 	el.classList.add(type);

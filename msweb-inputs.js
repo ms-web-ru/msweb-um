@@ -103,8 +103,13 @@ MSInputs.prototype.renderInput = function (el) {
 	var input = document.createElement('div');
 	input.parent_ = el;
 	input.addEventListener('paste', function (e) {
-		// TODO сделать проверки и убрать
+		var el = document.createElement('div');
+		el.innerHTML = e.clipboardData.getData('text') || '';
+		this.parent_.setValue(el.innerText);
 		e.preventDefault();
+		if (window.msweb && msweb.setCursorInEnd) {
+			msweb.setCursorInEnd(this);
+		}
 	});
 	input.addEventListener('keydown', function (e) {
 		if (e.keyCode === 13 && !e.target.parent_.classList.contains('msweb-input-textarea')) {
